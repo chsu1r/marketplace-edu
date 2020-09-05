@@ -23,5 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 # backend
-/api/market-venv
+market-venv
 /api/__pycache__
