@@ -1,38 +1,31 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import TopNavBar from './components/TopNavBar';
+import Home from './components/Home';
+import Login from './components/Login';
+import Marketplace from './components/Marketplace';
+import NotFound from './components/NotFound';
 
-var test_url = "/api/hello-world";
+import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      message : "no message",
-    };
-  }
-  
-  componentDidMount() {
-    fetch(test_url)
-      .then(res => res.json())
-      .then((data) => {
-        this.setState({message:data["message"]});
-      }).catch(console.log)
-  }
-  render() {
-    if (Object.keys(this.state.message).length === 0) return <div>Loading....</div>;
-    var message = this.state.message;
+    render() {    
     return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          { message }
-        </p>
-      </header>
-    </div>  
+      <Router>
+        <div className="App">
+          <TopNavBar/>
+          <Switch>
+            <Route exact path="/" component={Home}/>
+            <Route exact path="/login" component={Login}/>
+            <Route exact path="/marketplace" component={Marketplace}/>
+            <Route default component={NotFound}/>
+          </Switch>
+        </div>
+      </Router>
     );
   }
 }
 
 export default App;
+
