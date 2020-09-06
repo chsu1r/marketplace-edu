@@ -1,7 +1,13 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__, static_folder='./build', static_url_path='/')
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+from models import SaleItem
 
 @app.route('/', methods=['GET'])
 def index():
