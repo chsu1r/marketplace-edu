@@ -37,10 +37,14 @@ class FirebaseAccess:
 
 db_service = FirebaseAccess(app.config["FIREBASE_API_KEY"])
         
-
-@app.route('/', methods=['GET'])
+@app.route('/<path:path>')
+@app.route('/', methods=['GET'], defaults={'path': ''})
 def index():
 	return app.send_static_file('index.html')
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 @app.route('/api/hello-world')
 def get_hello_world():
