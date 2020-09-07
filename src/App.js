@@ -18,7 +18,7 @@ class App extends Component {
           <Switch>
             <Route exact path="/" component={Home}/>
             <Route exact path="/login" component={Login}/>
-            <Route exact path="/marketplace" component={Marketplace}/>
+            <Route exact path="/marketplace/:campus" component={Marketplace}/>
             <Route default component={NotFound}/>
           </Switch>
         </div>

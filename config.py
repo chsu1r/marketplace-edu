@@ -9,9 +9,11 @@ class Config(object):
 	SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
 class StagingConfig(Config):
+	FIREBASE_API_KEY = os.environ['STAGING_FIREBASE_API_KEY']
 	DEVELOPMENT = True
 	DEBUG = True
 
 class DevelopmentConfig(Config):
+	FIREBASE_API_KEY = os.environ['STAGING_FIREBASE_API_KEY']
 	DEVELOPMENT = True
 	DEBUG = True
