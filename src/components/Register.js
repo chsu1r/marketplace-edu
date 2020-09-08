@@ -1,28 +1,55 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
-import { withFirebase } from './Firebase';
 import { Form, Container, Button } from 'react-bootstrap';
+import { sha256 } from 'js-sha256';
+import { withAuthentication } from './Session';
 
-class Register extends React.Component {
-    render() {
-        return (
-            <div>
-                <h1> Register </h1>
-                <RegisterForm />
-            </div>
-        )
-    }
-}
+const add_user_url = "/api/add-user";
 
+const Register = () => (
+    <div>
+        <h1> Register </h1>
+        <RegisterForm />
+    </div>
+);
 
 const RegisterFormBase = (props) => {
+    const addUser = async (data) => {
+        const post_data = {
+            "email": data.email,
+            "firebase_id_hash": sha256(data.firebase_id),
+            "name": data.name,
+            "campus": data.campus.size > 1 ? data.campus : [data.campus],
+            "year": data.year
+        }
+        const token = data.token;
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(post_data)
+        }
+        return fetch(add_user_url, requestOptions)
+            .then(res => res.json())
+            .then((data) => {
+                props.switchCampus(data["message"]["campus"]);
+            }).catch(console.log)
+    }
+
     const onSubmit = data => {
-        console.log(data);
         props.firebase
             .doCreateUserWithEmailAndPassword(data.email, data.password)
-            .catch(error => {
-                this.setState({ error });
-            });
+            .then(authUser => {
+                props.firebase.auth.currentUser.getIdToken(/* forceRefresh */ true).then(function (idToken) {
+                    data.token = idToken
+                    data.firebase_id = authUser.user.uid;
+                    var resp = addUser(data);
+                    return resp;
+                }).catch(console.log);
+            })
+            .catch(console.log);
     }
 
     const { register, handleSubmit, errors, watch } = useForm();
@@ -40,8 +67,6 @@ const RegisterFormBase = (props) => {
                         Please enter your MIT email address.
             </Form.Text>
                 </Form.Group>
-
-
                 <Form.Group controlId="Password">
                     <Form.Label>Password</Form.Label>
                     <Form.Control name="password" type="password" placeholder="Password" ref={register({ required: true, minLength: 8 })} />
@@ -54,7 +79,6 @@ const RegisterFormBase = (props) => {
                         }
                     })} />
                 </Form.Group>
-
                 <Form.Group controlId="CampusSelect">
                     <Form.Label>Campus</Form.Label>
                     <Form.Control name="campus" as="select" ref={register({ required: true })}>
@@ -71,16 +95,14 @@ const RegisterFormBase = (props) => {
                         <option>G</option>
                     </Form.Control>
                 </Form.Group>
-
                 <Button variant="primary" type="submit">
                     Submit
         </Button>
             </Form>
-
         </Container>
     );
 }
 
-const RegisterForm = withFirebase(RegisterFormBase);
+const RegisterForm = withAuthentication(RegisterFormBase);
 export default Register;
 export { RegisterForm };

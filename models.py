@@ -1,14 +1,16 @@
 from app import db
 from sqlalchemy.dialects.postgresql import JSON, ARRAY
+from sqlalchemy import text
 
 class SaleItem(db.Model):
 	__tablename__ = 'sale_items'
 
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(), nullable=False, server_default="")
-	cost = db.Column(db.Integer, nullable=False, server_default=0)
+	cost = db.Column(db.Integer, nullable=False, server_default=text("0"))
 	description = db.Column(db.String(), server_default="")
 	seller_username = db.Column(db.String(), nullable=False)
+	# TODO(clhsu): Add payment method Enum
 
 	def __init__(self, item_id, name, cost, description, seller_username):
 		self.id = item_id

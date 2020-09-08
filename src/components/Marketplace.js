@@ -13,7 +13,7 @@ class Marketplace extends React.Component {
 
     getItems = async () => {
         const { campus } = this.props.match.params;
-        if (campus !== "mit") return {}
+        if (campus !== "mit" && campus !== "MIT") return {}
 
         return fetch(test_url)
             .then(res => res.json())
