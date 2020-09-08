@@ -26,5 +26,6 @@ yarn-error.log*
 # backend
 market-venv
 .env.constants
+.env
 __pycache__
 /api/__pycache__
