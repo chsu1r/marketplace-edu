@@ -3,12 +3,15 @@ import { withRouter } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { compose } from 'recompose';
 import { withFirebase } from './Firebase';
-import { Form, Container, Button } from 'react-bootstrap';
+import { Form, Container, Button, Row, Col } from 'react-bootstrap';
+import { RegisterLink } from './Register';
+import * as ROUTES from '../constants/routes'; 
 
 const Login = () => (
   <div>
     <h1>Login</h1>
     <LoginForm />
+    <RegisterLink />
   </div>
 );
 
@@ -17,6 +20,9 @@ const LoginFormBase = (props) => {
     props.firebase
       .doSignInWithEmailAndPassword(data.email, data.password)
       .then(() => {
+        props.history.push(ROUTES.HOME);
+      })
+      .then(() => {
       })
       .catch(console.log);
   }
@@ -24,6 +30,8 @@ const LoginFormBase = (props) => {
   const { register, handleSubmit } = useForm();
   return (
     <Container>
+      <Row>
+        <Col sm="12" md={{ offset: "3" , span : "6"}}>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Form.Group controlId="EmailAddress">
           <Form.Label>Email address</Form.Label>
@@ -40,6 +48,8 @@ const LoginFormBase = (props) => {
           Submit
         </Button>
       </Form>
+      </Col>
+      </Row>
     </Container>
   );
 }

@@ -40,3 +40,7 @@
 #home-jumbotron {
   text-align: left;
 }
+
+.form-container {
+  max-width: 720px;
+}

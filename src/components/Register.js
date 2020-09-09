@@ -1,10 +1,10 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
-import { Form, Container, Button } from 'react-bootstrap';
+import { Form, Container, Button, Row, Col } from 'react-bootstrap';
+import { Link, withRouter } from 'react-router-dom';
 import { sha256 } from 'js-sha256';
 import { withAuthentication } from './Session';
-
-const add_user_url = "/api/add-user";
+import * as ROUTES from '../constants/routes'; 
 
 const Register = () => (
     <div>
@@ -31,7 +31,7 @@ const RegisterFormBase = (props) => {
             },
             body: JSON.stringify(post_data)
         }
-        return fetch(add_user_url, requestOptions)
+        return fetch(ROUTES.ADD_USER, requestOptions)
             .then(res => res.json())
             .then((data) => {
                 props.switchCampus(data["message"]["campus"]);
@@ -45,8 +45,8 @@ const RegisterFormBase = (props) => {
                 props.firebase.auth.currentUser.getIdToken(/* forceRefresh */ true).then(function (idToken) {
                     data.token = idToken
                     data.firebase_id = authUser.user.uid;
-                    var resp = addUser(data);
-                    return resp;
+                    addUser(data);
+                    props.history.push(ROUTES.HOME);
                 }).catch(console.log);
             })
             .catch(console.log);
@@ -55,6 +55,8 @@ const RegisterFormBase = (props) => {
     const { register, handleSubmit, errors, watch } = useForm();
     return (
         <Container>
+            <Row>
+        <Col sm="12" md={{ offset: "3", span: "6" }}>
             <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group controlId="Name">
                     <Form.Label>Name</Form.Label>
@@ -99,10 +101,18 @@ const RegisterFormBase = (props) => {
                     Submit
         </Button>
             </Form>
+            </Col>
+      </Row>
         </Container>
     );
 }
 
-const RegisterForm = withAuthentication(RegisterFormBase);
+const RegisterLink = () => (
+    <p>
+      Don't have an account? <Link to={ROUTES.REGISTER}>Sign up</Link>
+    </p>
+  );
+
+const RegisterForm = withRouter(withAuthentication(RegisterFormBase));
 export default Register;
-export { RegisterForm };
+export { RegisterForm, RegisterLink };
