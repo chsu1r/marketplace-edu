@@ -15,7 +15,8 @@
     "react-hook-form": "^6.7.2",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3"
+    "react-scripts": "3.4.3",
+    "recompose": "^0.30.0"
   },
   "scripts": {
     "start": "react-scripts start",
