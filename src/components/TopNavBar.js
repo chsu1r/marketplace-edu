@@ -11,8 +11,8 @@ class NavigationAuth extends React.Component {
       <Navbar bg="light" variant="light">
         <Navbar.Brand href="/">Marketplace</Navbar.Brand>
         <Nav className="mr-auto">
-          <Nav.Link href="/">Home</Nav.Link>
           <Nav.Link href={"/marketplace/" + campus }>Marketplace</Nav.Link>
+          <Nav.Link href="/sell" >Sell</Nav.Link>
         </Nav>
         <Form inline>
           <FormControl type="text" placeholder={"Search " + campus + " Marketplace"} className="mr-sm-2" />

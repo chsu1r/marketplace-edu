@@ -10,7 +10,8 @@ class SaleItem(db.Model):
 	cost = db.Column(db.Integer, nullable=False, server_default=text("0"))
 	description = db.Column(db.String(), server_default="")
 	seller_username = db.Column(db.String(), nullable=False)
-	# TODO(clhsu): Add payment method Enum
+	# TODO(clhsu): Add payment method List
+	# TODO(clhsu): Add pickup/delivery
 
 	def __init__(self, item_id, name, cost, description, seller_username):
 		self.id = item_id

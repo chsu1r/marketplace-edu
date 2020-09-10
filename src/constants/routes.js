@@ -2,6 +2,9 @@ export const REGISTER = '/register';
 export const LOGIN = '/login';
 export const HOME = '/';
 export const MARKETPLACE_BASE = '/marketplace/';
+export const SELL_HOME = '/sell';
+
+// TODO(clhsu): actually use the routes dependency.
 
 // API ROUTES
 export const ADD_ITEM = '/api/add-item'

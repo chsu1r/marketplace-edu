@@ -99,7 +99,7 @@ const RegisterFormBase = (props) => {
                 </Form.Group>
                 <Button variant="primary" type="submit">
                     Submit
-        </Button>
+                </Button>
             </Form>
             </Col>
       </Row>
