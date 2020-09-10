@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Container, Row, Button, Col } from 'react-bootstrap';
 import { SellItem } from './SellItem';
+import { HostSale } from './HostSale';
 
 const SellPanels = (props) => (
     <Container id="sell-home-container">
@@ -64,12 +65,25 @@ class SellHome extends React.Component {
         if (this.state.screen === 'sell-item') {
             return (
                 <Row>
-                    <Col sm="12" md="6" lg="6" xl="6">
+                    <Col sm="12" md="4" lg="4" xl="4">
                         <h1>Sell an Item:</h1>
                         <Button variant="primary" onClick={(e) => this.handleButtonClick(e.target.value)} value=''>Back</Button>
                     </Col>
-                    <Col sm="12" md="6" lg="6" xl="6">
+                    <Col sm="12" md="8" lg="8" xl="8">
                         <SellItem />
+                    </Col>
+                </Row>
+            );
+        }
+        if (this.state.screen === 'host-sale') {
+            return (
+                <Row>
+                    <Col sm="12" md="4" lg="4" xl="4">
+                        <h1>Host a Sale:</h1>
+                        <Button variant="primary" onClick={(e) => this.handleButtonClick(e.target.value)} value=''>Back</Button>
+                    </Col>
+                    <Col sm="12" md="8" lg="8" xl="8">
+                        <HostSale />
                     </Col>
                 </Row>
             );

@@ -10,3 +10,4 @@ export const SELL_HOME = '/sell';
 export const ADD_ITEM = '/api/add-item'
 export const GET_ITEMS = '/api/get-items'
 export const ADD_USER = '/api/add-user'
+export const ADD_SALE = '/api/add-sale'

@@ -22,7 +22,8 @@ const SellItemFormBase = (props) => {
             "item_name": data.item_name,
             "item_description": data.description,
             "pay_method": data.pay_method,  // TODO(clhsu) : create pay method enum
-            "cost": data.cost
+            "cost": data.cost,
+            "draft": false
         }
 
         const requestOptions = {
