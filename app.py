@@ -7,7 +7,8 @@ import pyrebase
 from requests import HTTPError
 import requests
 from urllib.parse import urlencode, quote
-from api.util.id_resources import get_random_alphanumeric_string
+from api.util.id_resources import get_random_numeric_string, get_random_alphanumeric_string
+from sqlalchemy.sql import exists
 
 app = Flask(__name__, static_folder='./build', static_url_path='/')
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -63,6 +64,10 @@ class FirebaseAccess:
         self.raise_detailed_error(request_object)
         return request_object.json()
 
+    def upload_image_for_item(self, item_id, f):
+        img = self.storage.child('images').child(item_id + '.jpg').put(f)
+        return True
+
 db_service = FirebaseAccess(app.config["FIREBASE_API_KEY"])
         
 @app.route('/<path:path>')
@@ -78,24 +83,62 @@ def not_found(e):
 def get_hello_world():
 	return {'message' : "Backend API successfully connected :D"}
 
-@app.route('/api/add-item', methods=['POST'])
-def add_item():
-    data = json.loads(request.data)
-    name = data.get("name", "")
-    description = data.get("description", "")
-    cost = data.get("cost", 0)
-    random_id = get_random_alphanumeric_string(20)
-    try:
-        item = SaleItem(
+def generate_item_object(db, data):
+    name = data.get("item_name", "")
+    description = data.get("item_description", "")
+    cost = round(float(data.get("cost", "0")), 2)
+    random_id = get_random_numeric_string(20)
+    draft = bool(data.get("draft", 0))
+    sale_id = data.get("sale_id", None)
+    seller_username = data.get("username", "")
+    while db.session.query(SaleItem.id).filter_by(id=random_id).scalar() is not None:
+        random_id = get_random_numeric_string(20)
+    item = SaleItem(
             item_id=random_id,
             name=name,
             description=description,
             cost=cost,
-            seller_username=seller_username
+            seller_username=seller_username,
+            draft=draft,
+            sale_id=sale_id
         )
+    return item, random_id
+
+@app.route('/api/add-sale', methods=["POST"])
+def add_sale():
+    data = json.loads(request.data)
+    name = data.get("name", "")
+    seller_username = data.get("seller", "")
+    draft = data.get("draft", False)
+    sale_id = "S-" + get_random_alphanumeric_string(20)
+    try:
+        while db.query(exists().where(HostSale.sale_id==sale_id)):
+            sale_id = "S-" + get_random_alphanumeric_string(20)
+        sale = HostSale(
+            sale_id=sale_id,
+            name=name,
+            seller_username=seller_username,
+            draft=draft
+        )
+        db.session.add(sale)
+        for item_dict in data.get("items", []):
+            item, item_id = generate_item_object(item_dict)
+            db.session.add(item)
+        db.session.commit()
+        return {'status': 200, 'message':{'sale_id' : sale_id}}
+    except:
+        print("Unable to add item to database.")
+        raise HTTPError
+    
+@app.route('/api/add-item', methods=['POST'])
+def add_item():
+    data = dict(request.form)
+    item, item_id = generate_item_object(db, data)
+    try:
+        db_service.upload_image_for_item(item_id, request.files['file'])
         db.session.add(item)
         db.session.commit()
-        return {'status':200}
+        return {'status': 200, 'message':{'item_id' : item_id}}
     except:
         print("Unable to add item to database.")
         raise HTTPError
@@ -108,6 +151,26 @@ def get_items():
     for item in total_items:
         items.append({'id':item.id, 'name':item.name,'cost':item.cost,'description':item.description,'seller_username':item.seller_username,'img_url':db_service.get_item_image_url(item.id)})
     return {"items" : items, "status": 200}
+
+@app.route('/api/get-user', methods=['GET'])
+def get_user():
+    # Check for a token
+    if 'authorization' not in request.headers and 'Bearer ' not in request.headers.get('authorization'):
+        print("Not authorized.")
+        return abort(403)
+
+    id_token = request.headers.get('Authorization').split('Bearer ')[1]
+
+    # Check to see if the token is a matching user account
+    try:
+        decoded_id_token = db_service.get_user_account(id_token)
+    except HTTPError as err:
+        print("No user account found for that token. ", err)
+        return abort(403)
+
+    firebase_id = decoded_id_token['users'][0]["localId"]
+    user = db.session.query(User).filter_by(firebase_id=firebase_id).first()
+    return {"user" : user.to_json(), "status": 200}
 
 
 @app.route('/api/add-user', methods=['POST'])
@@ -158,7 +221,7 @@ def add_user():
         )
         db.session.add(user)
         db.session.commit()
-        return {'status':200, 'message': {"campus":campus}}
+        return {'status':200, 'message': {"campus" : campus, "username" : username}}
     except:
         print("Unable to add user to database.")
         raise HTTPError

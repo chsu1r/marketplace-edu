@@ -16,13 +16,31 @@ const Login = () => (
 );
 
 const LoginFormBase = (props) => {
+  const getUser = async (token) => {
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    }
+    return fetch(ROUTES.GET_USER, requestOptions)
+      .then(res => res.json())
+      .then((data) => {
+        localStorage.setItem('username', data.user.username);
+      })
+      .catch(console.log);
+  }
+
   const onSubmit = data => {
     props.firebase
       .doSignInWithEmailAndPassword(data.email, data.password)
       .then(() => {
-        props.history.push(ROUTES.HOME);
+        props.firebase.auth.currentUser.getIdToken(false).then(function (idToken) {
+          getUser(idToken);
+        }).catch(console.log);
       })
       .then(() => {
+        props.history.push(ROUTES.HOME);
       })
       .catch(console.log);
   }

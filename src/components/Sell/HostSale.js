@@ -84,9 +84,12 @@ const HostSaleFormBase = (props) => {
 
     // POST backend methods. Adding a single item to the db.
     const addItem = async (data) => {
-        // var user = getUser(context.authUser.token)  // TODO(clhsu): do this lol
+        if (localStorage.getItem("username").length == 0) {
+            // blow up
+            return;
+        }
         const post_data = {
-            "username": "username",
+            "username": localStorage.getItem("username"),
             "item_name": data.item_name,
             "item_description": data.description,
             "pay_method": data.pay_method,  // TODO(clhsu) : create pay method enum

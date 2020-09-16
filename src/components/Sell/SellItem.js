@@ -4,7 +4,7 @@ import { Form, Container, Button, Row, Col } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
 import { AuthUserContext } from '../Session';
 import { withAuthentication } from '../Session';
-import * as ROUTES from '../../constants/routes'; 
+import * as ROUTES from '../../constants/routes';
 
 const SellItem = () => (
     <div>
@@ -15,23 +15,26 @@ const SellItem = () => (
 const SellItemFormBase = (props) => {
     const context = React.useContext(AuthUserContext);
     const addItem = async (data) => {
-        
-        // var user = getUser(context.authUser.token)  // TODO(clhsu): do this lol
-        const post_data = {
-            "username": "username",
-            "item_name": data.item_name,
-            "item_description": data.description,
-            "pay_method": data.pay_method,  // TODO(clhsu) : create pay method enum
-            "cost": data.cost,
-            "draft": false
+        if (localStorage.getItem("username").length == 0) {
+            // blow up
+            return;
         }
+        const post_data = new FormData();
+        post_data.append('file', data.image_file[0]);
+        post_data.append('username', localStorage.getItem("username"));
+        post_data.append('item_name', data.item_name);
+        post_data.append('item_description', data.description);
+        post_data.append('pay_method', data.pay_method);
+        post_data.append('cost', data.cost);
+        post_data.append('draft', 0);
 
+        // TODO(clhsu): Do the draft thing
         const requestOptions = {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                "Accept": "multipart/form-data"
             },
-            body: JSON.stringify(post_data)
+            body: post_data
         }
 
         return fetch(ROUTES.ADD_ITEM, requestOptions)
@@ -72,11 +75,14 @@ const SellItemFormBase = (props) => {
                                 <option>Cash</option>
                             </Form.Control>
                         </Form.Group>
+                        <Form.Group>
+                            <Form.File name="image_file" id="image-file" label="Please upload an image of the object." ref={register({ required: true })} />
+                        </Form.Group>
                         <Button variant="primary" type="submit">
                             Post Item
                         </Button>
                     </Form>
-                    </Col>
+                </Col>
             </Row>
         </Container>
     );

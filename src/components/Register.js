@@ -35,6 +35,7 @@ const RegisterFormBase = (props) => {
             .then(res => res.json())
             .then((data) => {
                 props.switchCampus(data["message"]["campus"]);
+                localStorage.setItem("username", data["message"]["username"])
             }).catch(console.log)
     }
 
@@ -43,7 +44,7 @@ const RegisterFormBase = (props) => {
             .doCreateUserWithEmailAndPassword(data.email, data.password)
             .then(authUser => {
                 props.firebase.auth.currentUser.getIdToken(/* forceRefresh */ true).then(function (idToken) {
-                    data.token = idToken
+                    data.token = idToken;
                     data.firebase_id = authUser.user.uid;
                     addUser(data);
                     props.history.push(ROUTES.HOME);
